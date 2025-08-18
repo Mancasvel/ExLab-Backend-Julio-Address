@@ -9,7 +9,7 @@ const loadModel = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate (models) {
-      // define association here
+      User.hasMany(models.ShippingAddress, { foreignKey: 'userId', as: 'addresses' })
       User.hasMany(models.Restaurant, { foreignKey: 'userId' })
       User.hasMany(models.Order, { foreignKey: 'userId' })
     }

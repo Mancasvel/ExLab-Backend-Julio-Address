@@ -2,14 +2,48 @@ import { Model } from 'sequelize'
 
 const loadModel = (sequelize, DataTypes) => {
   class ShippingAddress extends Model {
-    // TODO
+    static associate (models) {
+      ShippingAddress.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'user',
+        onDelete: 'cascade'
+      })
+    }
   }
 
-  ShippingAddress.init({
-    // TODO
-  }, {
-    sequelize,
-    modelName: 'ShippingAddress'
+  ShippingAddress.init(
+    {
+      isDefault: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false // valor inicial por defecto
+      },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+      }
+    },
+    {
+      sequelize,
+      modelName: 'ShippingAddress'
+    }
+  )
+
+  // Hook para forzar que la primera dirección sea isDefault
+  ShippingAddress.beforeCreate(async (address, options) => {
+    const count = await ShippingAddress.count({
+      where: { userId: address.userId }
+    })
+
+    if (count === 0) {
+      address.isDefault = true
+    }
   })
 
   return ShippingAddress
