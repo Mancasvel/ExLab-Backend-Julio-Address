@@ -13,10 +13,29 @@ const loadModel = (sequelize, DataTypes) => {
 
   ShippingAddress.init(
     {
+      address: {
+        allowNull: false,
+        type: DataTypes.STRING
+      },
+      postalCode: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        validate: {
+          is: /^\d{5}$/
+        }
+      },
+      city: {
+        allowNull: false,
+        type: DataTypes.STRING
+      },
       isDefault: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
         defaultValue: false // valor inicial por defecto
+      },
+      userId: {
+        allowNull: false,
+        type: DataTypes.INTEGER
       },
       createdAt: {
         allowNull: false,

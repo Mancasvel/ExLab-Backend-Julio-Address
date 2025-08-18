@@ -18,10 +18,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      image: {
-        allowNull: false,
-        type: Sequelize.STRING
-      },
       zipCode: {
         allowNull: false,
         type: Sequelize.STRING
