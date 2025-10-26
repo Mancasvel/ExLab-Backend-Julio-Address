@@ -1,6 +1,7 @@
 import { Model } from 'sequelize'
 
 const loadModel = (sequelize, DataTypes) => {
+  const { Op } = sequelize.Sequelize
   class ShippingAddress extends Model {
     static associate (models) {
       ShippingAddress.belongsTo(models.User, {
@@ -13,25 +14,33 @@ const loadModel = (sequelize, DataTypes) => {
 
   ShippingAddress.init(
     {
-      address: {
+      alias: {
         allowNull: false,
         type: DataTypes.STRING
       },
-      postalCode: {
+      street: {
+        allowNull: false,
+        type: DataTypes.STRING
+      },
+      city: {
+        allowNull: false,
+        type: DataTypes.STRING
+      },
+      zipCode: {
         allowNull: false,
         type: DataTypes.STRING,
         validate: {
           is: /^\d{5}$/
         }
       },
-      city: {
+      province: {
         allowNull: false,
         type: DataTypes.STRING
       },
       isDefault: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
-        defaultValue: false // valor inicial por defecto
+        defaultValue: false
       },
       userId: {
         allowNull: false,
@@ -62,6 +71,23 @@ const loadModel = (sequelize, DataTypes) => {
 
     if (count === 0) {
       address.isDefault = true
+    }
+  })
+
+  // Hook para actualizar otras direcciones cuando se marca una como predeterminada
+  ShippingAddress.beforeUpdate(async (address, options) => {
+    if (address.changed('isDefault') && address.isDefault) {
+      // Si se está marcando como predeterminada, desmarcar todas las demás del usuario
+      await ShippingAddress.update(
+        { isDefault: false },
+        {
+          where: {
+            userId: address.userId,
+            id: { [Op.ne]: address.id }
+          },
+          transaction: options.transaction
+        }
+      )
     }
   })
 
